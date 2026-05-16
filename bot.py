@@ -1,3 +1,5 @@
+from flask import Flask
+import threading
 import os
 from telegram import (
     Update,
@@ -12,7 +14,11 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
+app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "Bot activo"
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
@@ -143,3 +149,8 @@ app.add_handler(
 print("Bot ejecutándose...")
 
 app.run_polling()
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+threading.Thread(target=run_web).start()

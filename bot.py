@@ -110,9 +110,9 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     location = update.message.location
 
-    tipo = movimientos.get(user.id, "Desconocido")
+        tipo = movimientos.get(user.id, "Desconocido")
 
-        zona_mx = pytz.timezone("America/Mexico_City")
+    zona_mx = pytz.timezone("America/Mexico_City")
     ahora = datetime.now(zona_mx)
 
     fecha = ahora.strftime("%d/%m/%Y")

@@ -151,7 +151,7 @@ async def validar_empleado(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             usuarios_sheet.update_cell(
                 cell.row,
-                5,
+                8,
                 str(user_id)
             )
 

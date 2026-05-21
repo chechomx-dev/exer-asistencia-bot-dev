@@ -46,7 +46,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(
 
 client = gspread.authorize(creds)
 
-sheet = client.open("Asistencia Exer").sheet1
+sheet = client.open("Asistencia Exer DEV").sheet1
 
 # MEMORIA TEMPORAL
 movimientos = {}

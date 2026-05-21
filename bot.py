@@ -219,19 +219,19 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     latitud = location.latitude
     longitud = location.longitude
 
-    ubicaciones_pendientes[user.id] = {
-    "fecha": fecha,
-    "hora": hora,
-    "telegram_id": telegram_id,
-    "nombre": nombre,
-    "tipo": tipo,
-    "latitud": latitud,
-    "longitud": longitud
-}
+        ubicaciones_pendientes[user.id] = {
+        "fecha": fecha,
+        "hora": hora,
+        "telegram_id": telegram_id,
+        "nombre": nombre,
+        "tipo": tipo,
+        "latitud": latitud,
+        "longitud": longitud
+    }
 
-await update.message.reply_text(
-    "Ahora toma una foto de tu rostro 📸"
-)
+    await update.message.reply_text(
+        "Ahora toma una foto de tu rostro 📸"
+    )
 # FOTO
 async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 

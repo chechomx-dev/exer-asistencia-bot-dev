@@ -219,7 +219,7 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     latitud = location.latitude
     longitud = location.longitude
 
-        ubicaciones_pendientes[user.id] = {
+    ubicaciones_pendientes[user.id] = {
         "fecha": fecha,
         "hora": hora,
         "telegram_id": telegram_id,

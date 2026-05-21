@@ -73,9 +73,30 @@ async def registro(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Ingresa tu número de empleado 🪪"
     )
+# VALIDAR USUARIO
+def usuario_registrado(telegram_id):
+
+    registros = usuarios_sheet.get_all_records()
+
+    for fila in registros:
+
+        if str(fila["Telegram ID"]) == str(telegram_id):
+
+            if fila["Estatus"] == "ACTIVO":
+                return True
+
+    return False    
 # ENTRADA
 async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
 
+    if not usuario_registrado(user_id):
+
+        await update.message.reply_text(
+            "Debes registrarte primero usando /registro"
+        )
+
+        return
     movimientos[update.effective_user.id] = "Entrada"
 
     keyboard = [
@@ -95,7 +116,15 @@ async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # SALIDA
 async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
 
+    if not usuario_registrado(user_id):
+
+        await update.message.reply_text(
+            "Debes registrarte primero usando /registro"
+        )
+
+        return
     movimientos[update.effective_user.id] = "Salida"
 
     keyboard = [

@@ -51,6 +51,7 @@ usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
 # MEMORIA TEMPORAL
 movimientos = {}
 registro_pendiente = {}
+ubicaciones_pendientes = {}
 # START
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -218,20 +219,49 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     latitud = location.latitude
     longitud = location.longitude
 
+    ubicaciones_pendientes[user.id] = {
+    "fecha": fecha,
+    "hora": hora,
+    "telegram_id": telegram_id,
+    "nombre": nombre,
+    "tipo": tipo,
+    "latitud": latitud,
+    "longitud": longitud
+}
+
+await update.message.reply_text(
+    "Ahora toma una foto de tu rostro 📸"
+)
+# FOTO
+async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    user = update.effective_user
+
+    if user.id not in ubicaciones_pendientes:
+
+        await update.message.reply_text(
+            "Primero registra ubicación 📍"
+        )
+
+        return
+
+    datos = ubicaciones_pendientes[user.id]
+
     sheet.append_row([
-        fecha,
-        hora,
-        telegram_id,
-        nombre,
-        tipo,
-        latitud,
-        longitud
+        datos["fecha"],
+        datos["hora"],
+        datos["telegram_id"],
+        datos["nombre"],
+        datos["tipo"],
+        datos["latitud"],
+        datos["longitud"]
     ])
 
-    await update.message.reply_text(
-        f"{tipo} registrada correctamente ✅"
-    )
+    ubicaciones_pendientes.pop(user.id)
 
+    await update.message.reply_text(
+        f'{datos["tipo"]} registrada correctamente ✅📸'
+    )
 # APP
 application = ApplicationBuilder().token(TOKEN).build()
 
@@ -248,7 +278,9 @@ application.add_handler(
 application.add_handler(
     MessageHandler(filters.LOCATION, location_handler)
 )
-
+application.add_handler(
+    MessageHandler(filters.PHOTO, photo_handler)
+)
 print("Bot ejecutándose...")
 def run_web():
     port = int(os.environ.get("PORT", 10000))

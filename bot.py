@@ -47,10 +47,10 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(
 client = gspread.authorize(creds)
 
 sheet = client.open("Asistencia Exer DEV").sheet1
-
+usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
 # MEMORIA TEMPORAL
 movimientos = {}
-
+registro_pendiente = {}
 # START
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -63,7 +63,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/entrada\n"
         "/salida"
     )
+# REGISTRO
+async def registro(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    user_id = update.effective_user.id
+
+    registro_pendiente[user_id] = True
+
+    await update.message.reply_text(
+        "Ingresa tu número de empleado 🪪"
+    )
 # ENTRADA
 async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -103,7 +112,61 @@ async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Compárteme tu ubicación para registrar tu SALIDA 📍",
         reply_markup=reply_markup
     )
+# VALIDAR EMPLEADO
+async def validar_empleado(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    user = update.effective_user
+    user_id = user.id
+
+    if user_id not in registro_pendiente:
+        return
+
+    employ_id = update.message.text.strip()
+
+    registros = usuarios_sheet.get_all_records()
+
+    for fila in registros:
+
+        if str(fila["Employ ID"]) == employ_id:
+
+            if fila["Estatus"] != "ACTIVO":
+
+                await update.message.reply_text(
+                    "Usuario inactivo. Comunícate con RH."
+                )
+
+                registro_pendiente.pop(user_id, None)
+                return
+
+            if fila["Telegram ID"]:
+
+                await update.message.reply_text(
+                    "Este empleado ya tiene un dispositivo registrado. Comunícate con RH."
+                )
+
+                registro_pendiente.pop(user_id, None)
+                return
+
+            cell = usuarios_sheet.find(employ_id)
+
+            usuarios_sheet.update_cell(
+                cell.row,
+                5,
+                str(user_id)
+            )
+
+            await update.message.reply_text(
+                "Registro completado correctamente ✅"
+            )
+
+            registro_pendiente.pop(user_id, None)
+            return
+
+    await update.message.reply_text(
+        "Número de empleado no válido. Comunícate con RH."
+    )
+
+    registro_pendiente.pop(user_id, None)
 # UBICACIÓN
 # UBICACIÓN
 async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -144,9 +207,15 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 application = ApplicationBuilder().token(TOKEN).build()
 
 application.add_handler(CommandHandler("start", start))
+application.add_handler(CommandHandler("registro", registro))
 application.add_handler(CommandHandler("entrada", entrada))
 application.add_handler(CommandHandler("salida", salida))
-
+application.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        validar_empleado
+    )
+)
 application.add_handler(
     MessageHandler(filters.LOCATION, location_handler)
 )

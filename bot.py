@@ -46,6 +46,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(
 client = gspread.authorize(creds)
 sheet = client.open("Asistencia Exer DEV").sheet1
 usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
+incidencias_sheet = client.open("Asistencia Exer DEV").worksheet("Incidencias")
 # MEMORIA TEMPORAL
 movimientos = {}
 registro_pendiente = {}
@@ -72,6 +73,45 @@ async def registro(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Ingresa tu número de empleado 🪪"
     )
+# VALIDAR ENTRADA ABIERTA
+def entrada_abierta_anterior(telegram_id):
+
+    registros = sheet.get_all_records()
+
+    if not registros:
+        return False
+
+    ultimo = None
+
+    for fila in registros:
+
+        if str(fila["Telegram ID"]) == str(telegram_id):
+            ultimo = fila
+
+    if ultimo is None:
+        return False
+
+    if ultimo["Tipo"] == "Entrada":
+
+        zona_mx = pytz.timezone("America/Mexico_City")
+        hoy = datetime.now(zona_mx).strftime("%d/%m/%Y")
+
+        if ultimo["Fecha"] != hoy:
+
+            incidencias_sheet.append_row([
+
+                hoy,
+                "",
+                ultimo["Nombre"],
+                "Salida pendiente RH"
+
+            ])
+
+            return False
+
+        return True
+
+    return False
 # VALIDAR USUARIO
 def usuario_registrado(telegram_id):
 
@@ -91,24 +131,34 @@ async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if not usuario_registrado(user_id):
 
-        await update.message.reply_text(
-            "Debes registrarte primero usando /registro"
-        )
+    await update.message.reply_text(
+        "Debes registrarte primero usando /registro"
+    )
 
-        return
-    movimientos[update.effective_user.id] = "Entrada"
+    return
 
-    keyboard = [
+
+if entrada_abierta_anterior(user_id):
+
+    await update.message.reply_text(
+        "Ya tienes una entrada abierta hoy."
+    )
+
+    return
+
+movimientos[update.effective_user.id] = "Entrada"
+
+keyboard = [
         [KeyboardButton("Compartir ubicación 📍", request_location=True)]
     ]
 
-    reply_markup = ReplyKeyboardMarkup(
+reply_markup = ReplyKeyboardMarkup(
         keyboard,
         resize_keyboard=True,
         one_time_keyboard=True
     )
 
-    await update.message.reply_text(
+await update.message.reply_text(
         "Compárteme tu ubicación para registrar tu ENTRADA 📍",
         reply_markup=reply_markup
     )

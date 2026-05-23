@@ -238,59 +238,81 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # FOTO
 async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    user = update.effective_user
+    try:
+        user = update.effective_user
 
-    if user.id not in ubicaciones_pendientes:
+        if user.id not in ubicaciones_pendientes:
 
-        await update.message.reply_text(
-            "Primero registra ubicación 📍"
+            await update.message.reply_text(
+                "Primero registra ubicación 📍"
+            )
+
+            return
+
+        datos = ubicaciones_pendientes[user.id]
+
+        photo = update.message.photo[-1]
+
+        file = await photo.get_file()
+
+        temp = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".jpg"
         )
 
-        return
+        temp.close()
 
-    datos = ubicaciones_pendientes[user.id]
+        await file.download_to_drive(temp.name)
 
-    photo = update.message.photo[-1]
+        fecha_limpia = datos["fecha"].replace("/", "-")
+        hora_limpia = datos["hora"].replace(":", "-")
 
-    file = await photo.get_file()
+        file_metadata = {
+            "name": f'{datos["telegram_id"]}_{fecha_limpia}_{hora_limpia}.jpg',
+            "parents": [DRIVE_FOLDER_ID]
+        }
 
-    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
+        media = MediaFileUpload(
+            temp.name,
+            mimetype="image/jpeg"
+        )
 
-    await file.download_to_drive(temp.name)
+        uploaded_file = drive_service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields="id"
+        ).execute()
 
-    file_metadata = {
-        'name': f'{datos["telegram_id"]}_{datos["fecha"]}_{datos["hora"]}.jpg',
-        'parents': [DRIVE_FOLDER_ID]
-    }
+        file_id = uploaded_file.get("id")
 
-    media = MediaFileUpload(temp.name, mimetype='image/jpeg')
+        evidencia_link = f"https://drive.google.com/file/d/{file_id}/view"
 
-    uploaded_file = drive_service.files().create(
-        body=file_metadata,
-        media_body=media,
-        fields='id'
-    ).execute()
+        sheet.append_row([
+            datos["fecha"],
+            datos["hora"],
+            datos["telegram_id"],
+            datos["nombre"],
+            datos["tipo"],
+            datos["latitud"],
+            datos["longitud"],
+            evidencia_link
+        ])
 
-    file_id = uploaded_file.get('id')
+        ubicaciones_pendientes.pop(user.id, None)
 
-    evidencia_link = f"https://drive.google.com/file/d/{file_id}/view"
+        os.remove(temp.name)
 
-    sheet.append_row([
-        datos["fecha"],
-        datos["hora"],
-        datos["telegram_id"],
-        datos["nombre"],
-        datos["tipo"],
-        datos["latitud"],
-        datos["longitud"],
-        evidencia_link
-    ])
+        await update.message.reply_text(
+            f'{datos["tipo"]} registrada correctamente ✅📸'
+        )
 
-    ubicaciones_pendientes.pop(user.id)
+    except Exception as e:
 
-    await update.message.reply_text(
-        f'{datos["tipo"]} registrada correctamente ✅📸'
-    )
+        print("ERROR EN PHOTO_HANDLER:", e)
+
+        await update.message.reply_text(
+            "Ocurrió un error al guardar la foto. Intenta nuevamente."
+        )
 # APP
 application = ApplicationBuilder().token(TOKEN).build()
 

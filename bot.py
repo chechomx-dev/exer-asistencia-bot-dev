@@ -164,6 +164,35 @@ async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Compárteme tu ubicación para registrar tu ENTRADA 📍",
         reply_markup=reply_markup
     )
+# SALIDA
+async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    user_id = update.effective_user.id
+
+    if not usuario_registrado(user_id):
+
+        await update.message.reply_text(
+            "Debes registrarte primero usando /registro"
+        )
+
+        return
+
+    movimientos[user_id] = "Salida"
+
+    keyboard = [
+        [KeyboardButton("Compartir ubicación 📍", request_location=True)]
+    ]
+
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+
+    await update.message.reply_text(
+        "Compárteme tu ubicación para registrar tu SALIDA 📍",
+        reply_markup=reply_markup
+    )
 # VALIDAR EMPLEADO
 async def validar_empleado(update: Update, context: ContextTypes.DEFAULT_TYPE):
 

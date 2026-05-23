@@ -93,25 +93,31 @@ def entrada_abierta_anterior(telegram_id):
 
     if ultimo["Tipo"] == "Entrada":
 
-        zona_mx = pytz.timezone("America/Mexico_City")
-        hoy = datetime.now(zona_mx).strftime("%d/%m/%Y")
+    zona_mx = pytz.timezone("America/Mexico_City")
+    hoy = datetime.now(zona_mx).strftime("%d/%m/%Y")
 
-        if ultimo["Fecha"] != hoy:
+    if ultimo["Fecha"] != hoy:
 
-            incidencias_sheet.append_row([
+        incidencias_sheet.append_row([
 
-                hoy,
-                "",
-                ultimo["Nombre"],
-                "Salida pendiente RH"
+            hoy,
+            "",
+            ultimo["Nombre"],
+            "Salida pendiente RH"
 
-            ])
+        ])
 
-            return False
+        return False
 
-        return True
+    return True
+
+
+if ultimo["Tipo"] == "Salida":
 
     return False
+
+
+return False
 # VALIDAR USUARIO
 def usuario_registrado(telegram_id):
 
@@ -176,7 +182,24 @@ async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         return
+registros = sheet.get_all_records()
 
+ultimo = None
+
+for fila in registros:
+
+    if str(fila["Telegram ID"]) == str(user_id):
+
+        ultimo = fila
+
+
+if ultimo and ultimo["Tipo"] == "Salida":
+
+    await update.message.reply_text(
+        "No tienes una entrada abierta."
+    )
+
+    return
     movimientos[user_id] = "Salida"
 
     keyboard = [

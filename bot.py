@@ -129,10 +129,10 @@ def usuario_registrado(telegram_id):
 async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
-    if not usuario_registrado(user_id):
+if entrada_abierta_anterior(user_id):
 
     await update.message.reply_text(
-        "Debes registrarte primero usando /registro"
+        "Ya tienes una entrada abierta hoy."
     )
 
     return

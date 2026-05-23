@@ -23,7 +23,9 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import pytz
-
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+import tempfile
 # TOKEN TELEGRAM
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 
@@ -45,9 +47,10 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(
 )
 
 client = gspread.authorize(creds)
-
+drive_service = build('drive', 'v3', credentials=creds)
 sheet = client.open("Asistencia Exer DEV").sheet1
 usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
+DRIVE_FOLDER_ID = "1Y3Bp1S416plEEUhHnx0eGy0jkwD9HSTF"
 # MEMORIA TEMPORAL
 movimientos = {}
 registro_pendiente = {}
@@ -245,7 +248,32 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         return
 
-    datos = ubicaciones_pendientes[user.id]
+        datos = ubicaciones_pendientes[user.id]
+
+    photo = update.message.photo[-1]
+
+    file = await photo.get_file()
+
+    temp = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
+
+    await file.download_to_drive(temp.name)
+
+    file_metadata = {
+        'name': f'{datos["telegram_id"]}_{datos["fecha"]}_{datos["hora"]}.jpg',
+        'parents': [DRIVE_FOLDER_ID]
+    }
+
+    media = MediaFileUpload(temp.name, mimetype='image/jpeg')
+
+    uploaded_file = drive_service.files().create(
+        body=file_metadata,
+        media_body=media,
+        fields='id'
+    ).execute()
+
+    file_id = uploaded_file.get('id')
+
+    evidencia_link = f"https://drive.google.com/file/d/{file_id}/view"
 
     sheet.append_row([
         datos["fecha"],
@@ -254,7 +282,8 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         datos["nombre"],
         datos["tipo"],
         datos["latitud"],
-        datos["longitud"]
+        datos["longitud"],
+        evidencia_link
     ])
 
     ubicaciones_pendientes.pop(user.id)

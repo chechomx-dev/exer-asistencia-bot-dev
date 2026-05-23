@@ -176,6 +176,7 @@ async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 # SALIDA
+# SALIDA
 async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_id = update.effective_user.id
@@ -187,24 +188,25 @@ async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         return
-registros = sheet.get_all_records()
 
-ultimo = None
+    registros = sheet.get_all_records()
 
-for fila in registros:
+    ultimo = None
 
-    if str(fila["Telegram ID"]) == str(user_id):
+    for fila in registros:
 
-        ultimo = fila
+        if str(fila["Telegram ID"]) == str(user_id):
 
+            ultimo = fila
 
-if ultimo and ultimo["Tipo"] == "Salida":
+    if ultimo is None or ultimo["Tipo"] == "Salida":
 
-    await update.message.reply_text(
-        "No tienes una entrada abierta."
-    )
+        await update.message.reply_text(
+            "No tienes una entrada abierta."
+        )
 
-    return
+        return
+
     movimientos[user_id] = "Salida"
 
     keyboard = [

@@ -127,44 +127,7 @@ def usuario_registrado(telegram_id):
     return False    
 # ENTRADA
 async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
 
-if entrada_abierta_anterior(user_id):
-
-    await update.message.reply_text(
-        "Ya tienes una entrada abierta hoy."
-    )
-
-    return
-
-
-if entrada_abierta_anterior(user_id):
-
-    await update.message.reply_text(
-        "Ya tienes una entrada abierta hoy."
-    )
-
-    return
-
-movimientos[update.effective_user.id] = "Entrada"
-
-keyboard = [
-        [KeyboardButton("Compartir ubicación 📍", request_location=True)]
-    ]
-
-reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
-
-await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu ENTRADA 📍",
-        reply_markup=reply_markup
-    )
-
-# SALIDA
-async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     if not usuario_registrado(user_id):
@@ -174,7 +137,18 @@ async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         return
-    movimientos[update.effective_user.id] = "Salida"
+
+
+    if entrada_abierta_anterior(user_id):
+
+        await update.message.reply_text(
+            "Ya tienes una entrada abierta hoy."
+        )
+
+        return
+
+
+    movimientos[user_id] = "Entrada"
 
     keyboard = [
         [KeyboardButton("Compartir ubicación 📍", request_location=True)]
@@ -187,7 +161,7 @@ async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu SALIDA 📍",
+        "Compárteme tu ubicación para registrar tu ENTRADA 📍",
         reply_markup=reply_markup
     )
 # VALIDAR EMPLEADO

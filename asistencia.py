@@ -169,7 +169,7 @@ async def salida(update, context):
     )
     async def descanso(update, context):
 
-    user_id = update.effective_user.id
+        user_id = update.effective_user.id
 
     if not usuario_registrado(user_id):
         await update.message.reply_text("Debes registrarte primero usando /registro")

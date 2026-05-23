@@ -17,6 +17,7 @@ from telegram.ext import (
 from config import *
 from sheets import sheet, usuarios_sheet, incidencias_sheet
 from usuarios import usuario_registrado
+from incidencias import registrar_salida_pendiente
 app = Flask(__name__)
 
 @app.route('/')

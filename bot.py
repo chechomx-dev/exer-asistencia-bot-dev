@@ -91,33 +91,38 @@ def entrada_abierta_anterior(telegram_id):
     if ultimo is None:
         return False
 
+
     if ultimo["Tipo"] == "Entrada":
 
-    zona_mx = pytz.timezone("America/Mexico_City")
-    hoy = datetime.now(zona_mx).strftime("%d/%m/%Y")
+        zona_mx = pytz.timezone("America/Mexico_City")
 
-    if ultimo["Fecha"] != hoy:
+        hoy = datetime.now(
+            zona_mx
+        ).strftime("%d/%m/%Y")
 
-        incidencias_sheet.append_row([
 
-            hoy,
-            "",
-            ultimo["Nombre"],
-            "Salida pendiente RH"
+        if ultimo["Fecha"] != hoy:
 
-        ])
+            incidencias_sheet.append_row([
+
+                hoy,
+                "",
+                ultimo["Nombre"],
+                "Salida pendiente RH"
+
+            ])
+
+            return False
+
+        return True
+
+
+    if ultimo["Tipo"] == "Salida":
 
         return False
 
-    return True
-
-
-if ultimo["Tipo"] == "Salida":
 
     return False
-
-
-return False
 # VALIDAR USUARIO
 def usuario_registrado(telegram_id):
 

@@ -14,6 +14,7 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
+from config import *
 app = Flask(__name__)
 
 @app.route('/')
@@ -48,9 +49,7 @@ sheet = client.open("Asistencia Exer DEV").sheet1
 usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
 incidencias_sheet = client.open("Asistencia Exer DEV").worksheet("Incidencias")
 # MEMORIA TEMPORAL
-movimientos = {}
 registro_pendiente = {}
-ubicaciones_pendientes = {}
 # START
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 

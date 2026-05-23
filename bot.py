@@ -15,6 +15,7 @@ from telegram.ext import (
     filters,
 )
 from config import *
+from sheets import sheet, usuarios_sheet, incidencias_sheet
 app = Flask(__name__)
 
 @app.route('/')
@@ -27,27 +28,6 @@ import pytz
 # TOKEN TELEGRAM
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 
-# GOOGLE SHEETS
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
-]
-
-import json
-import os
-from oauth2client.service_account import ServiceAccountCredentials
-
-google_creds = json.loads(os.environ["GOOGLE_CREDENTIALS"])
-
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    google_creds,
-    scope
-)
-
-client = gspread.authorize(creds)
-sheet = client.open("Asistencia Exer DEV").sheet1
-usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
-incidencias_sheet = client.open("Asistencia Exer DEV").worksheet("Incidencias")
 # MEMORIA TEMPORAL
 registro_pendiente = {}
 # START

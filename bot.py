@@ -19,6 +19,10 @@ from sheets import sheet, usuarios_sheet, incidencias_sheet
 from usuarios import usuario_registrado
 from incidencias import registrar_salida_pendiente
 from evidencias import photo_handler
+from asistencia import (
+    entrada,
+    salida
+)
 app = Flask(__name__)
 
 @app.route('/')
@@ -54,150 +58,6 @@ async def registro(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(
         "Ingresa tu número de empleado 🪪"
-    )
-# VALIDAR ENTRADA ABIERTA
-def entrada_abierta_anterior(telegram_id):
-
-    registros = sheet.get_all_records()
-
-    if not registros:
-        return False
-
-    ultimo = None
-
-    for fila in registros:
-
-        if str(fila["Telegram ID"]) == str(telegram_id):
-            ultimo = fila
-
-    if ultimo is None:
-        return False
-
-
-    if ultimo["Tipo"] == "Entrada":
-
-        zona_mx = pytz.timezone("America/Mexico_City")
-
-        hoy = datetime.now(
-            zona_mx
-        ).strftime("%d/%m/%Y")
-
-
-        # Entrada abierta PERO de día anterior
-        if ultimo["Fecha"] != hoy:
-
-            registrar_salida_pendiente(ultimo["Nombre"])
-
-            return "ANTERIOR"
-
-
-        # Entrada abierta del MISMO día
-        return "HOY"
-
-
-    if ultimo["Tipo"] == "Salida":
-
-        return False
-
-
-    return False  
-# ENTRADA
-async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    user_id = update.effective_user.id
-
-    if not usuario_registrado(user_id):
-
-        await update.message.reply_text(
-            "Debes registrarte primero usando /registro"
-        )
-
-        return
-
-
-    resultado_entrada = entrada_abierta_anterior(user_id)
-
-
-    if resultado_entrada == "HOY":
-
-        await update.message.reply_text(
-            "Ya tienes una entrada abierta hoy."
-        )
-
-        return
-
-
-    if resultado_entrada == "ANTERIOR":
-
-        await update.message.reply_text(
-            "⚠️ Cuidado: olvidaste registrar tu salida anterior.\n"
-            "RH validará esa asistencia con tu jefe inmediato.\n"
-            "Puedes continuar con tu registro de hoy."
-        )
-
-
-    movimientos[user_id] = "Entrada"
-
-    keyboard = [
-        [KeyboardButton("Compartir ubicación 📍", request_location=True)]
-    ]
-
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
-
-    await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu ENTRADA 📍",
-        reply_markup=reply_markup
-    )
-# SALIDA
-async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    user_id = update.effective_user.id
-
-    if not usuario_registrado(user_id):
-
-        await update.message.reply_text(
-            "Debes registrarte primero usando /registro"
-        )
-
-        return
-
-    registros = sheet.get_all_records()
-
-    ultimo = None
-
-    for fila in registros:
-
-        if str(fila["Telegram ID"]) == str(user_id):
-
-            ultimo = fila
-
-    if ultimo is None or ultimo["Tipo"] == "Salida":
-
-        await update.message.reply_text(
-            "No tienes una entrada abierta."
-        )
-
-        return
-
-    movimientos[user_id] = "Salida"
-
-    keyboard = [
-        [KeyboardButton("Compartir ubicación 📍", request_location=True)]
-    ]
-
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
-
-    await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu SALIDA 📍",
-        reply_markup=reply_markup
     )
 # VALIDAR EMPLEADO
 async def validar_empleado(update: Update, context: ContextTypes.DEFAULT_TYPE):

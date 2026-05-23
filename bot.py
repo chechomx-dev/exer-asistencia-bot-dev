@@ -23,9 +23,6 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 import pytz
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-import tempfile
 # TOKEN TELEGRAM
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 
@@ -47,10 +44,8 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(
 )
 
 client = gspread.authorize(creds)
-drive_service = build('drive', 'v3', credentials=creds)
 sheet = client.open("Asistencia Exer DEV").sheet1
 usuarios_sheet = client.open("Asistencia Exer DEV").worksheet("Usuarios")
-DRIVE_FOLDER_ID = "1Y3Bp1S416plEEUhHnx0eGy0jkwD9HSTF"
 # MEMORIA TEMPORAL
 movimientos = {}
 registro_pendiente = {}
@@ -239,6 +234,7 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
+
         user = update.effective_user
 
         if user.id not in ubicaciones_pendientes:
@@ -253,41 +249,10 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         photo = update.message.photo[-1]
 
-        file = await photo.get_file()
-
-        temp = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=".jpg"
-        )
-
-        temp.close()
-
-        await file.download_to_drive(temp.name)
-
-        fecha_limpia = datos["fecha"].replace("/", "-")
-        hora_limpia = datos["hora"].replace(":", "-")
-
-        file_metadata = {
-            "name": f'{datos["telegram_id"]}_{fecha_limpia}_{hora_limpia}.jpg',
-            "parents": [DRIVE_FOLDER_ID]
-        }
-
-        media = MediaFileUpload(
-            temp.name,
-            mimetype="image/jpeg"
-        )
-
-        uploaded_file = drive_service.files().create(
-            body=file_metadata,
-            media_body=media,
-            fields="id"
-        ).execute()
-
-        file_id = uploaded_file.get("id")
-
-        evidencia_link = f"https://drive.google.com/file/d/{file_id}/view"
+        telegram_file_id = photo.file_id
 
         sheet.append_row([
+
             datos["fecha"],
             datos["hora"],
             datos["telegram_id"],
@@ -295,12 +260,11 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             datos["tipo"],
             datos["latitud"],
             datos["longitud"],
-            evidencia_link
+            telegram_file_id
+
         ])
 
         ubicaciones_pendientes.pop(user.id, None)
-
-        os.remove(temp.name)
 
         await update.message.reply_text(
             f'{datos["tipo"]} registrada correctamente ✅📸'
@@ -311,7 +275,7 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print("ERROR EN PHOTO_HANDLER:", e)
 
         await update.message.reply_text(
-            "Ocurrió un error al guardar la foto. Intenta nuevamente."
+            "Ocurrió un error al guardar evidencia."
         )
 # APP
 application = ApplicationBuilder().token(TOKEN).build()

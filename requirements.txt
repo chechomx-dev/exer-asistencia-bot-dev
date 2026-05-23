@@ -4,4 +4,3 @@ python-telegram-bot
 pandas
 flask
 pytz
-google-api-python-client

@@ -248,7 +248,7 @@ async def photo_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         return
 
-        datos = ubicaciones_pendientes[user.id]
+    datos = ubicaciones_pendientes[user.id]
 
     photo = update.message.photo[-1]
 

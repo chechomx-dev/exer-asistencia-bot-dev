@@ -16,6 +16,7 @@ from telegram.ext import (
 )
 from config import *
 from sheets import sheet, usuarios_sheet, incidencias_sheet
+from usuarios import usuario_registrado
 app = Flask(__name__)
 
 @app.route('/')
@@ -104,20 +105,7 @@ def entrada_abierta_anterior(telegram_id):
         return False
 
 
-    return False
-# VALIDAR USUARIO
-def usuario_registrado(telegram_id):
-
-    registros = usuarios_sheet.get_all_records()
-
-    for fila in registros:
-
-        if str(fila["Telegram ID"]) == str(telegram_id):
-
-            if fila["Estatus"] == "ACTIVO":
-                return True
-
-    return False    
+    return False  
 # ENTRADA
 async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
 

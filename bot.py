@@ -101,6 +101,7 @@ def entrada_abierta_anterior(telegram_id):
         ).strftime("%d/%m/%Y")
 
 
+        # Entrada abierta PERO de día anterior
         if ultimo["Fecha"] != hoy:
 
             incidencias_sheet.append_row([
@@ -112,9 +113,11 @@ def entrada_abierta_anterior(telegram_id):
 
             ])
 
-            return False
+            return "ANTERIOR"
 
-        return True
+
+        # Entrada abierta del MISMO día
+        return "HOY"
 
 
     if ultimo["Tipo"] == "Salida":
@@ -150,13 +153,25 @@ async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
 
-    if entrada_abierta_anterior(user_id):
+    resultado_entrada = entrada_abierta_anterior(user_id)
+
+
+    if resultado_entrada == "HOY":
 
         await update.message.reply_text(
             "Ya tienes una entrada abierta hoy."
         )
 
         return
+
+
+    if resultado_entrada == "ANTERIOR":
+
+        await update.message.reply_text(
+            "⚠️ Cuidado: olvidaste registrar tu salida anterior.\n"
+            "RH validará esa asistencia con tu jefe inmediato.\n"
+            "Puedes continuar con tu registro de hoy."
+        )
 
 
     movimientos[user_id] = "Entrada"
@@ -175,7 +190,6 @@ async def entrada(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Compárteme tu ubicación para registrar tu ENTRADA 📍",
         reply_markup=reply_markup
     )
-# SALIDA
 # SALIDA
 async def salida(update: Update, context: ContextTypes.DEFAULT_TYPE):
 

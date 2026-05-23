@@ -21,7 +21,9 @@ from incidencias import registrar_salida_pendiente
 from evidencias import photo_handler
 from asistencia import (
     entrada,
-    salida
+    salida,
+    descanso,
+    regreso
 )
 app = Flask(__name__)
 
@@ -155,6 +157,8 @@ application = ApplicationBuilder().token(TOKEN).build()
 application.add_handler(CommandHandler("start", start))
 application.add_handler(CommandHandler("registro", registro))
 application.add_handler(CommandHandler("entrada", entrada))
+application.add_handler(CommandHandler("descanso", descanso))
+application.add_handler(CommandHandler("regreso", regreso))
 application.add_handler(CommandHandler("salida", salida))
 application.add_handler(
     MessageHandler(

@@ -60,7 +60,18 @@ def entrada_abierta_anterior(telegram_id):
 
     return False
 
+def ultimo_movimiento_usuario(telegram_id):
 
+    registros = sheet.get_all_records()
+
+    ultimo = None
+
+    for fila in registros:
+
+        if str(fila["Telegram ID"]) == str(telegram_id):
+            ultimo = fila
+
+    return ultimo
 async def entrada(update, context):
 
     user_id = update.effective_user.id
@@ -175,79 +186,28 @@ async def descanso(update, context):
     user_id = update.effective_user.id
 
     if not usuario_registrado(user_id):
-        await update.message.reply_text(
-            "Debes registrarte primero usando /registro"
-        )
+        await update.message.reply_text("Debes registrarte primero usando /registro")
         return
 
-    movimientos[user_id] = "Descanso"
+    ultimo = ultimo_movimiento_usuario(user_id)
 
-    keyboard = [
-        [KeyboardButton(
-            "Compartir ubicación 📍",
-            request_location=True
-        )]
-    ]
-
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
-
-    await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu DESCANSO 🍽️",
-        reply_markup=reply_markup
-    )
-
-
-async def regreso(update, context):
-
-    user_id = update.effective_user.id
-
-    if not usuario_registrado(user_id):
-        await update.message.reply_text(
-            "Debes registrarte primero usando /registro"
-        )
+    if ultimo is None or ultimo["Tipo"] == "Salida":
+        await update.message.reply_text("Primero debes registrar tu entrada.")
         return
 
-    movimientos[user_id] = "Regreso"
-
-    keyboard = [
-        [KeyboardButton(
-            "Compartir ubicación 📍",
-            request_location=True
-        )]
-    ]
-
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
-
-    await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu REGRESO 🍽️",
-        reply_markup=reply_markup
-    )
-    await update.message.reply_text("Debes registrarte primero usando /registro")
-    return
+    if ultimo["Tipo"] == "Descanso":
+        await update.message.reply_text("Ya tienes un descanso abierto. Primero registra /regreso.")
+        return
 
     movimientos[user_id] = "Descanso"
 
     keyboard = [[KeyboardButton("Compartir ubicación 📍", request_location=True)]]
-
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     await update.message.reply_text(
         "Compárteme tu ubicación para registrar tu DESCANSO 🍽️",
         reply_markup=reply_markup
     )
-
 
 async def regreso(update, context):
 
@@ -257,17 +217,18 @@ async def regreso(update, context):
         await update.message.reply_text("Debes registrarte primero usando /registro")
         return
 
+    ultimo = ultimo_movimiento_usuario(user_id)
+
+    if ultimo is None or ultimo["Tipo"] != "Descanso":
+        await update.message.reply_text("No tienes un descanso abierto.")
+        return
+
     movimientos[user_id] = "Regreso"
 
     keyboard = [[KeyboardButton("Compartir ubicación 📍", request_location=True)]]
-
-    reply_markup = ReplyKeyboardMarkup(
-        keyboard,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu REGRESO de descanso 🍽️",
+        "Compárteme tu ubicación para registrar tu REGRESO 🍽️",
         reply_markup=reply_markup
     )

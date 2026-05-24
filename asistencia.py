@@ -142,18 +142,10 @@ async def salida(update, context):
         return
 
 
-    registros = sheet.get_all_records()
-
-    ultimo = None
-
-    for fila in registros:
-
-        if str(fila["Telegram ID"]) == str(user_id):
-
-            ultimo = fila
+    ultimo = ultimo_movimiento_usuario(user_id)
 
 
-    if ultimo is None or ultimo["Tipo"] == "Salida":
+    if ultimo is None:
 
         await update.message.reply_text(
             "No tienes una entrada abierta."
@@ -161,12 +153,24 @@ async def salida(update, context):
 
         return
 
-if ultimo["Tipo"] == "Entrada":
 
-    registrar_no_descanso(
-        user_id,
-        ultimo["Nombre"]
-    )
+    if ultimo["Tipo"] == "Salida":
+
+        await update.message.reply_text(
+            "No tienes una entrada abierta."
+        )
+
+        return
+
+
+    if ultimo["Tipo"] == "Entrada":
+
+        registrar_no_descanso(
+            user_id,
+            ultimo["Nombre"]
+        )
+
+
     movimientos[user_id] = "Salida"
 
     keyboard = [
@@ -183,11 +187,9 @@ if ultimo["Tipo"] == "Entrada":
     )
 
     await update.message.reply_text(
-    "Compárteme tu ubicación para registrar tu SALIDA 📍",
-    reply_markup=reply_markup
-)
-
-
+        "Compárteme tu ubicación para registrar tu SALIDA 📍",
+        reply_markup=reply_markup
+    )
 async def descanso(update, context):
 
     user_id = update.effective_user.id

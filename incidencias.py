@@ -31,3 +31,17 @@ def registrar_salida_pendiente(telegram_id, nombre):
         nombre,
         "Salida pendiente RH"
     ])
+    def registrar_no_descanso(telegram_id, nombre):
+
+    zona_mx = pytz.timezone(TIMEZONE)
+    hoy = datetime.now(zona_mx).strftime("%d/%m/%Y")
+
+    employ_id = obtener_employ_id_por_telegram(telegram_id)
+
+    incidencias_sheet.append_row([
+        hoy,
+        telegram_id,
+        employ_id,
+        nombre,
+        "No registró descanso"
+    ])

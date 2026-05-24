@@ -9,8 +9,10 @@ from telegram import (
 from config import movimientos
 from sheets import sheet
 from usuarios import usuario_registrado
-from incidencias import registrar_salida_pendiente
-
+from incidencias import (
+    registrar_salida_pendiente,
+    registrar_no_descanso
+)
 
 def entrada_abierta_anterior(telegram_id):
 
@@ -159,7 +161,12 @@ async def salida(update, context):
 
         return
 
+if ultimo["Tipo"] == "Entrada":
 
+    registrar_no_descanso(
+        user_id,
+        ultimo["Nombre"]
+    )
     movimientos[user_id] = "Salida"
 
     keyboard = [

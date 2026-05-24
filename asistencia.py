@@ -44,8 +44,9 @@ def entrada_abierta_anterior(telegram_id):
         if ultimo["Fecha"] != hoy:
 
             registrar_salida_pendiente(
-                ultimo["Nombre"]
-            )
+    telegram_id,
+    ultimo["Nombre"]
+)
 
             return "ANTERIOR"
 

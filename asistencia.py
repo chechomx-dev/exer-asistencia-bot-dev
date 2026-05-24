@@ -164,16 +164,73 @@ async def salida(update, context):
     )
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu SALIDA 📍",
-        reply_markup=reply_markup
-    )
-    async def descanso(update, context):
+    "Compárteme tu ubicación para registrar tu SALIDA 📍",
+    reply_markup=reply_markup
+)
 
-        user_id = update.effective_user.id
+
+async def descanso(update, context):
+
+    user_id = update.effective_user.id
 
     if not usuario_registrado(user_id):
-        await update.message.reply_text("Debes registrarte primero usando /registro")
+        await update.message.reply_text(
+            "Debes registrarte primero usando /registro"
+        )
         return
+
+    movimientos[user_id] = "Descanso"
+
+    keyboard = [
+        [KeyboardButton(
+            "Compartir ubicación 📍",
+            request_location=True
+        )]
+    ]
+
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+
+    await update.message.reply_text(
+        "Compárteme tu ubicación para registrar tu DESCANSO 🍽️",
+        reply_markup=reply_markup
+    )
+
+
+async def regreso(update, context):
+
+    user_id = update.effective_user.id
+
+    if not usuario_registrado(user_id):
+        await update.message.reply_text(
+            "Debes registrarte primero usando /registro"
+        )
+        return
+
+    movimientos[user_id] = "Regreso"
+
+    keyboard = [
+        [KeyboardButton(
+            "Compartir ubicación 📍",
+            request_location=True
+        )]
+    ]
+
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+
+    await update.message.reply_text(
+        "Compárteme tu ubicación para registrar tu REGRESO 🍽️",
+        reply_markup=reply_markup
+    )
+    await update.message.reply_text("Debes registrarte primero usando /registro")
+    return
 
     movimientos[user_id] = "Descanso"
 

@@ -18,7 +18,7 @@ def menu_por_estado(tipo):
     elif tipo == "Regreso":
         keyboard = [
             ["📋 Estatus"],
-            ["🍽️ Descanso", "🚪 Salida"]
+            ["🚪 Salida"]
         ]
 
     else:

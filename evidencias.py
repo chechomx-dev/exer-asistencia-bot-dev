@@ -1,6 +1,6 @@
 from sheets import sheet
 from config import ubicaciones_pendientes
-
+from menus import menu_por_estado
 
 async def photo_handler(update, context):
 
@@ -36,7 +36,8 @@ async def photo_handler(update, context):
         ubicaciones_pendientes.pop(user.id, None)
 
         await update.message.reply_text(
-            f'{datos["tipo"]} registrada correctamente ✅📸'
+            f'{datos["tipo"]} registrada correctamente ✅📸',
+            reply_markup=menu_por_estado(datos["tipo"])
         )
 
     except Exception as e:

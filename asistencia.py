@@ -241,7 +241,7 @@ async def regreso(update, context):
         "Compárteme tu ubicación para registrar tu REGRESO 🍽️",
         reply_markup=reply_markup
     )
-    async def estatus(update, context):
+async def estatus(update, context):
 
     user_id = update.effective_user.id
 

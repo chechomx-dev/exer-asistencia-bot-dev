@@ -12,3 +12,14 @@ def usuario_registrado(telegram_id):
                 return True
 
     return False
+def obtener_rol(telegram_id):
+
+    registros = usuarios_sheet.get_all_records()
+
+    for fila in registros:
+
+        if str(fila["Telegram ID"]) == str(telegram_id):
+
+            return fila["Rol Reporte"]
+
+    return "EMPLEADO"

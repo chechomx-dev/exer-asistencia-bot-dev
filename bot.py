@@ -16,7 +16,10 @@ from telegram.ext import (
 )
 from config import *
 from sheets import sheet, usuarios_sheet, incidencias_sheet
-from usuarios import usuario_registrado
+from usuarios import (
+    usuario_registrado,
+    obtener_rol
+)
 from incidencias import registrar_salida_pendiente
 from evidencias import photo_handler
 from asistencia import (

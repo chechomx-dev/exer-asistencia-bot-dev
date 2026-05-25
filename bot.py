@@ -116,7 +116,31 @@ async def validar_empleado(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     registro_pendiente.pop(user_id, None)
-# UBICACIÓN
+async def manejar_boton(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    texto = update.message.text
+
+    if texto == "✅ Entrada":
+        await entrada(update, context)
+        return
+
+    if texto == "🍽️ Descanso":
+        await descanso(update, context)
+        return
+
+    if texto == "🔙 Regreso":
+        await regreso(update, context)
+        return
+
+    if texto == "🚪 Salida":
+        await salida(update, context)
+        return
+
+    if texto == "📋 Estatus":
+        await update.message.reply_text(
+            "La función de estatus estará disponible próximamente."
+        )
+        return
 # UBICACIÓN
 async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -160,6 +184,13 @@ application.add_handler(CommandHandler("entrada", entrada))
 application.add_handler(CommandHandler("descanso", descanso))
 application.add_handler(CommandHandler("regreso", regreso))
 application.add_handler(CommandHandler("salida", salida))
+application.add_handler(
+    MessageHandler(
+        filters.Regex("^(✅ Entrada|🍽️ Descanso|🔙 Regreso|🚪 Salida|📋 Estatus)$"),
+        manejar_boton
+    )
+)
+
 application.add_handler(
     MessageHandler(
         filters.TEXT & ~filters.COMMAND,

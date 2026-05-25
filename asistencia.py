@@ -11,9 +11,9 @@ from sheets import sheet
 from usuarios import usuario_registrado
 from incidencias import (
     registrar_salida_pendiente,
-    registrar_no_descanso
+    registrar_no_descanso,
+    obtener_employ_id_por_telegram
 )
-
 def entrada_abierta_anterior(telegram_id):
 
     registros = sheet.get_all_records()
@@ -240,4 +240,67 @@ async def regreso(update, context):
     await update.message.reply_text(
         "Compárteme tu ubicación para registrar tu REGRESO 🍽️",
         reply_markup=reply_markup
+    )
+    async def estatus(update, context):
+
+    user_id = update.effective_user.id
+
+    if not usuario_registrado(user_id):
+
+        await update.message.reply_text(
+            "Debes registrarte primero usando /registro"
+        )
+
+        return
+
+
+    ultimo = ultimo_movimiento_usuario(
+        user_id
+    )
+
+    if ultimo is None:
+
+        await update.message.reply_text(
+            "No tienes movimientos registrados."
+        )
+
+        return
+
+
+    employ_id = obtener_employ_id_por_telegram(
+        user_id
+    )
+
+    estado = "Sin definir"
+
+
+    if ultimo["Tipo"] == "Entrada":
+        estado = "🟢 Entrada abierta"
+
+    elif ultimo["Tipo"] == "Descanso":
+        estado = "🍽️ En descanso"
+
+    elif ultimo["Tipo"] == "Regreso":
+        estado = "🟢 Trabajando"
+
+    elif ultimo["Tipo"] == "Salida":
+        estado = "🔴 Jornada cerrada"
+
+
+    mensaje = (
+        f"📋 Estado actual\n\n"
+        f"👤 {ultimo['Nombre']}\n"
+        f"🪪 Employ ID: {employ_id}\n\n"
+        f"🕒 Último movimiento:\n"
+        f"{ultimo['Tipo']}\n\n"
+        f"📅 Fecha:\n"
+        f"{ultimo['Fecha']}\n\n"
+        f"⏰ Hora:\n"
+        f"{ultimo['Hora']}\n\n"
+        f"📌 Estado:\n"
+        f"{estado}"
+    )
+
+    await update.message.reply_text(
+        mensaje
     )

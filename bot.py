@@ -23,7 +23,8 @@ from asistencia import (
     entrada,
     salida,
     descanso,
-    regreso
+    regreso,
+    estatus
 )
 app = Flask(__name__)
 
@@ -137,9 +138,8 @@ async def manejar_boton(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if texto == "📋 Estatus":
-        await update.message.reply_text(
-            "La función de estatus estará disponible próximamente."
-        )
+
+        await estatus(update, context)
         return
 # UBICACIÓN
 async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -184,6 +184,9 @@ application.add_handler(CommandHandler("entrada", entrada))
 application.add_handler(CommandHandler("descanso", descanso))
 application.add_handler(CommandHandler("regreso", regreso))
 application.add_handler(CommandHandler("salida", salida))
+application.add_handler(
+    CommandHandler("estatus", estatus)
+)
 application.add_handler(
     MessageHandler(
         filters.Regex("^(✅ Entrada|🍽️ Descanso|🔙 Regreso|🚪 Salida|📋 Estatus)$"),

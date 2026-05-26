@@ -152,14 +152,14 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if location.live_period is None:
 
-    await update.message.reply_text(
+        await update.message.reply_text(
         "⚠️ Debes compartir tu ubicación en tiempo real por 15 minutos.\n\n"
         "No se acepta ubicación fija.\n\n"
         "En Telegram selecciona:\n"
         "📎 Adjuntar → Ubicación → Compartir ubicación en tiempo real."
-    )
+        )
 
-    return
+        return
 
     tipo = movimientos.get(user.id, "Desconocido")
 

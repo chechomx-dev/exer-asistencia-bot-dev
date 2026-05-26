@@ -124,7 +124,7 @@ async def entrada(update, context):
     )
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu ENTRADA 📍",
+        "Compárteme tu ubicación en tiempo real por 15 minutos para registrar tu ENTRADA 📍",
         reply_markup=reply_markup
     )
 
@@ -187,7 +187,7 @@ async def salida(update, context):
     )
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu SALIDA 📍",
+        "Compárteme tu ubicación en tiempo real por 15 minutos para registrar tu SALIDA 📍",
         reply_markup=reply_markup
     )
 async def descanso(update, context):
@@ -214,7 +214,7 @@ async def descanso(update, context):
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu DESCANSO 🍽️",
+        "Compárteme tu ubicación en tiempo real por 15 minutos para registrar tu DESCANSO 🍽️",
         reply_markup=reply_markup
     )
 
@@ -238,7 +238,7 @@ async def regreso(update, context):
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     await update.message.reply_text(
-        "Compárteme tu ubicación para registrar tu REGRESO 🍽️",
+        "Compárteme tu ubicación en tiempo real por 15 minutos para registrar tu REGRESO 🍽️",
         reply_markup=reply_markup
     )
 async def estatus(update, context):

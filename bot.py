@@ -150,6 +150,17 @@ async def location_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     location = update.message.location
 
+    if location.live_period is None:
+
+    await update.message.reply_text(
+        "⚠️ Debes compartir tu ubicación en tiempo real por 15 minutos.\n\n"
+        "No se acepta ubicación fija.\n\n"
+        "En Telegram selecciona:\n"
+        "📎 Adjuntar → Ubicación → Compartir ubicación en tiempo real."
+    )
+
+    return
+
     tipo = movimientos.get(user.id, "Desconocido")
 
     zona_mx = pytz.timezone("America/Mexico_City")
